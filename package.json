@@ -1,0 +1,21 @@
+{
+  "name": "bistro-boss-restaurant",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "Restaurant",
+    "Bistro Boss"
+  ],
+  "author": "Tariqul Islam",
+  "license": "ISC",
+  "description": "This Server For Bistro Boss Restaurant Website ❤️",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongodb": "^6.12.0"
+  }
+}
