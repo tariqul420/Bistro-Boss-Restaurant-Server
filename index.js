@@ -6,7 +6,14 @@ const app = express()
 require('dotenv').config()
 const port = process.env.PORT || 3000
 
-app.use(cors())
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://bistro-boss-restaurant-5.web.app/',
+        'https://bistro-boss-restaurant-5.firebaseapp.com',
+    ],
+    credentials: true
+}))
 app.use(express.json())
 
 
@@ -29,15 +36,58 @@ async function run() {
         // Database Collection
         const menuCollection = client.db("Bistro_Boss").collection("Menu")
         const reviewCollection = client.db("Bistro_Boss").collection("Reviews")
+        const cartCollection = client.db("Bistro_Boss").collection("Cart")
 
         app.get('/menus', async (req, res) => {
-            const result = await menuCollection.find().toArray()
-            res.send(result)
+            try {
+                const result = await menuCollection.find().toArray()
+                res.send(result)
+            } catch (error) {
+                console.log("Menu Error:", error.message);
+                res.status(500).send({ message: error.message })
+            }
         })
 
         app.get('/reviews', async (req, res) => {
-            const result = await reviewCollection.find().toArray()
-            res.send(result)
+            try {
+                const result = await reviewCollection.find().toArray()
+                res.send(result)
+            } catch (error) {
+                console.log("Review Error:", error.message);
+                res.status(500).send({ message: error.message })
+            }
+        })
+
+        app.post('/carts', async (req, res) => {
+            try {
+                const cart = req.body
+                const email = cart?.buyer?.email
+                const productId = cart?.productId
+
+                const isExist = await cartCollection.findOne({ 'buyer.email': email, productId: productId })
+
+                if (isExist) {
+                    return res.status(400).send('Product Already Added to Cart')
+                }
+
+                const result = await cartCollection.insertOne(cart)
+                res.send(result)
+            } catch (error) {
+                console.log("Cart Error:", error.message);
+                res.status(500).send({ message: error.message })
+            }
+        })
+
+        app.get('/carts', async (req, res) => {
+            try {
+                const email = req.query.email
+                console.log(email);
+                const result = await cartCollection.find({ 'buyer.email': email }).toArray()
+                res.send(result)
+            } catch (error) {
+                console.log("Cart Error:", error.message);
+                res.status(500).send({ message: error.message })
+            }
         })
 
     } catch (error) {
